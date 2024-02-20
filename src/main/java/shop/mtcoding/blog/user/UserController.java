@@ -3,6 +3,7 @@ package shop.mtcoding.blog.user;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,16 +29,16 @@ public class UserController {
         System.out.println(requestDTO); // toString -> @Data
 
         if (requestDTO.getUsername().length() < 3) {
-            return "error/400"; // ViewResolver 설정이 되어 있음. (앞 경로, 뒤 경로)
+            throw new RuntimeException("유저 네임이 너무 짧아요"); // ViewResolver 설정이 되어 있음. (앞 경로, 뒤 경로)
         }
 
-        User user = userRepository.findByUsernameAndPassword(requestDTO);
+        User user = userRepository.findByUsername(requestDTO.getUsername());
 
-        if (user == null) { // 조회 안됨 (401)
-            return "error/401";
-        } else { // 조회 됐음 (인증됨)
-            session.setAttribute("sessionUser", user); // 락카에 담음 (StateFul)
+        if (!BCrypt.checkpw(requestDTO.getPassword(), user.getPassword())) { // 조회 안됨 (401)
+        // if문에 부정문을 쓰지말라는게 정론. 하지만 filter에는 쓰는게 좋다고 생각합니다.
+            throw new RuntimeException("PW가 틀렸습니다.");// 구체적으로 알려주지 않는다. 상대가 본인이 아닐 수도 있으니까.
         }
+        session.setAttribute("sessionUser", user); // 락카에 담음 (StateFul)
 
         return "redirect:/"; // 컨트롤러가 존재하면 무조건 redirect 외우기
     }
@@ -46,6 +47,9 @@ public class UserController {
     public @ResponseBody String join(UserRequest.JoinDTO requestDTO) {
         System.out.println(requestDTO);
 
+        String rawPassword = requestDTO.getPassword();
+        String encPassword = BCrypt.hashpw(rawPassword, BCrypt.gensalt()); // (pw, salt)
+        requestDTO.setPassword(encPassword);
         try {
             userRepository.save(requestDTO); // 모델에 위임하기
         } catch (Exception e) {

@@ -31,6 +31,7 @@ public class UserRepository {
     }
 
     public User findByUsernameAndPassword(UserRequest.LoginDTO requestDTO) {
+        // hash안했어?
         Query query = em.createNativeQuery("select * from user_tb where username=? and password=?", User.class);
         query.setParameter(1, requestDTO.getUsername());
         query.setParameter(2, requestDTO.getPassword());
@@ -40,6 +41,17 @@ public class UserRepository {
             return user;
         } catch (Exception e) {
             throw new RuntimeException("아이디 혹은 비밀번호를 찾을 수 없습니다.");
+        }
+    }
+    public User findByUsername(String username) {
+        Query query = em.createNativeQuery("select * from user_tb where username=?", User.class);
+        query.setParameter(1, username);
+
+        try {
+            User user = (User) query.getSingleResult();
+            return user;
+        } catch (Exception e) {
+            throw new RuntimeException("아이디를 찾을 수 없습니다.");
         }
     }
 }
