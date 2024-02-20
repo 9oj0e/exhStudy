@@ -8,6 +8,5 @@ public class BooleanTest {
     @Test
     public void bool_test(){
         BoardResponse.DetailDTO boardDTO = new BoardResponse.DetailDTO();
-        System.out.println(boardDTO.isBoardOwner());
     }
 }

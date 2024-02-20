@@ -13,6 +13,8 @@ public class User {
     @Id // PK 설정
     @GeneratedValue(strategy = GenerationType.IDENTITY) // auto_increment 전략
     private Integer id;
+
+    @Column(unique = true)
     private String username;
     private String password;
     private String email;
