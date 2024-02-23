@@ -8,20 +8,55 @@
     <div class="card">
         <div class="card-header"><b>회원가입을 해주세요</b></div>
         <div class="card-body">
-            <form action="/join" method="post" enctype="application/x-www-form-urlencoded">
+            <form action="/join" method="post" enctype="application/x-www-form-urlencoded" onsubmit="return valid()">
                 <div class="mb-3">
-                    <input type="text" class="form-control" placeholder="Enter username" name="username">
+                    <input type="text" class="form-control" placeholder="Enter username" name="username" id="username"
+                           onkeyup="check()" autocomplete="off" required>
+                    <div id="duplicated">중복되었습니다.</div>
                 </div>
                 <div class="mb-3">
-                    <input type="password" class="form-control" placeholder="Enter password" name="password">
+                    <input type="password" class="form-control" placeholder="Enter password" name="password" required>
                 </div>
                 <div class="mb-3">
-                    <input type="email" class="form-control" placeholder="Enter email" name="email">
+                    <input type="email" class="form-control" placeholder="Enter email" name="email" required>
                 </div>
                 <button type="submit" class="btn btn-primary form-control">회원가입</button>
             </form>
         </div>
     </div>
 </div>
+<script>
+    let isCheck = true;
+    $("#duplicated").hide();
+
+    function check() {
+        let username = $("#username").val();
+        $.ajax({
+            url: "/api/username-same-check/" + username,
+            type: "get"
+        })
+                .done((res) => {
+                    console.log("성공")
+                    console.log(res)
+                    if (res.body == true) {
+                        $("#duplicated").show();
+                        isCheck = false;
+                        console.log(isCheck)
+                    } else {
+                        $("#duplicated").hide();
+                        isCheck = true;
+                        console.log(isCheck);
+                    }
+                })
+                .fail((res) => {
+                    alert(res.responseJSON.msg)
+                });
+
+    }
+
+    function valid() {
+        return isCheck;
+    }
+</script>
 
 {{> /layout/footer}}
