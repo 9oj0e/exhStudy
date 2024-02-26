@@ -24,7 +24,16 @@
             {{board.content}}
         </div>
     </div>
-
+    <!--    좋아요 부분 -->
+    <div>
+        {{#love.isLove}}
+            <i class="fas fa-heart text-danger"></i>
+        {{/love.isLove}}
+        {{^love.isLove}}
+            <i class="far fa-heart"></i>
+        {{/love.isLove}}
+        <span>{{love.loveCount}}</span>
+    </div>
     <!-- 댓글 -->
     <div class="card mt-3">
         <!-- 댓글등록 -->
